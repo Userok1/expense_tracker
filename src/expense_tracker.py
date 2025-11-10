@@ -8,11 +8,10 @@ from typing import Any
 from src.parser import create_parser
 
 
-
 class Expense:
     def __init__(self, date: datetime | str | None, 
                  description: str,
-                 amount: str, 
+                 amount: str,
                  expns_id: int | None = None
     ):
         self.id = expns_id
@@ -55,6 +54,8 @@ class ExpenseTracker:
 
     @classmethod
     def __handle_command(cls, command: str) -> None:
+        from src.utils import is_positive
+
         args: Namespace = cls.__parse_command(command)
         
         if args.command == "end":
@@ -63,7 +64,10 @@ class ExpenseTracker:
 
             if args.et_command == "add":
                 description, amount = args.description, args.amount
-                cls._add(description, amount)
+                if is_positive(amount):
+                    cls._add(description, amount)
+                else:
+                    raise SystemExit("Number should not be negative")
             
             elif args.et_command == "list":
                 cls._print_list()
@@ -72,7 +76,10 @@ class ExpenseTracker:
                 expns_id = args.id
                 description = args.description
                 amount = args.amount
-                cls._update(expns_id, description, amount)
+                if is_positive(amount):
+                    cls._update(expns_id, description, amount)
+                else:
+                    raise SystemExit("Number should not be negative")
 
             elif args.et_command == "delete":
                 expns_id = args.id
